@@ -1,0 +1,37 @@
+# Step 4: Create chatbot with conversation memory
+def chatbot_response(message, history):
+    """
+    Generate natural human-like responses with context awareness
+    """
+    # BlenderBot handles context well, so we'll include recent history
+    conversation = ""
+    
+    # Add last 2 exchanges for context (BlenderBot works best with limited history)
+    if history:
+        recent = history[-2:] if len(history) > 2 else history
+        for human_msg, bot_msg in recent:
+            conversation += f"{human_msg}\n{bot_msg}\n"
+    
+    # Add current message
+    conversation += message
+    
+    # Tokenize and generate
+    inputs = tokenizer(conversation, return_tensors="pt", max_length=128, truncation=True)
+    
+    reply_ids = model.generate(
+        inputs["input_ids"],
+        max_length=128,
+        min_length=20,
+        temperature=0.8,
+        top_p=0.9,
+        top_k=50,
+        do_sample=True,
+        num_beams=1,
+        early_stopping=True,
+        pad_token_id=tokenizer.eos_token_id,
+        no_repeat_ngram_size=3,
+    )
+    
+    response = tokenizer.decode(reply_ids[0], skip_special_tokens=True)
+    
+    return response.strip()
