@@ -1,0 +1,5 @@
+model_name = "facebook/blenderbot-400M-distill"
+
+print("Loading conversational model...")
+tokenizer = AutoTokenizer.from_pretrained(model_name)
+model = AutoModelForSeq2SeqLM.from_pretrained(model_name)
