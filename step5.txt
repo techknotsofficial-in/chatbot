@@ -1,0 +1,53 @@
+# Step 5: Create Gradio interface
+with gr.Blocks(theme=gr.themes.Soft()) as demo:
+    gr.Markdown(
+        """
+        # 💬 AI Chatbot - Talk Naturally!
+        This AI remembers your conversation and responds like a real person.
+        """
+    )
+    
+    chatbot = gr.Chatbot(
+        height=450,
+        bubble_full_width=False,
+        avatar_images=(None, "🤖"),
+        show_label=False
+    )
+    
+    with gr.Row():
+        msg = gr.Textbox(
+            placeholder="Type your message here and press Enter...",
+            show_label=False,
+            scale=4,
+            container=False
+        )
+        send = gr.Button("Send 📤", scale=1, variant="primary")
+    
+    with gr.Row():
+        clear = gr.Button("🗑️ Clear Chat", size="sm")
+    
+    gr.Examples(
+        examples=[
+            "Hey! How's it going?",
+            "What do you like to do for fun?",
+            "Tell me something interesting!",
+            "What's your take on artificial intelligence?",
+            "Can you help me brainstorm ideas?",
+        ],
+        inputs=msg,
+        label="Try these:"
+    )
+    
+    # Handle chat responses
+    def respond(message, chat_history):
+        if not message.strip():
+            return "", chat_history
+        
+        bot_message = chatbot_response(message, chat_history)
+        chat_history.append((message, bot_message))
+        return "", chat_history
+    
+    # Connect events
+    msg.submit(respond, [msg, chatbot], [msg, chatbot])
+    send.click(respond, [msg, chatbot], [msg, chatbot])
+    clear.click(lambda: None, None, chatbot, queue=False)
